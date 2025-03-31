@@ -1,0 +1,9 @@
+# Bỏ qua thư mục node_modules
+node_modules/
+
+# Bỏ qua các file môi trường
+.env
+.env.local
+.env.development
+.env.production
+.env.test
