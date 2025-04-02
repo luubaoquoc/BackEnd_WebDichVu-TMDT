@@ -13,6 +13,7 @@ const app = express();
 const port = process.env.PORT || 3001;
 
 app.use(cors());
+app.use(express.json());  // ❗ QUAN TRỌNG: Middleware để đọc JSON từ request body
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/public', express.static(path.join(__dirname, 'public')))
