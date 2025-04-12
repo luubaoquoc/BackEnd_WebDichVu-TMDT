@@ -103,8 +103,103 @@ const updateUser = (id, data) => {
 )
 }
 
+const deleteUser = (id) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const checkUser = await User.findById({
+                _id: id
+            });
+            if(!checkUser){
+                resolve({
+                    status: 'error',
+                    message: 'User not found'
+                });
+            }
+            await User.findByIdAndDelete(id);
+            resolve({
+                status: 'success',
+                message: 'User delete successfully',
+            });
+            
+        } catch (error) {
+            reject(error);
+        }
+    }
+)
+}
+
+const getAllUser = () => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            
+            const allUser = await User.find();
+            if(deleteUser){
+                resolve({
+                    status: 'success',
+                    message: ' successfully',
+                    data: allUser
+                });
+            }
+        } catch (error) {
+            reject(error);
+        }
+    }
+)
+}
+
+const getDetailsUser = (id) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const user = await User.findById({
+                _id: id
+            });
+            if(!user){
+                resolve({
+                    status: 'error',
+                    message: 'User not found'
+                });
+            }
+            resolve({
+                status: 'success',
+                message: 'SUCCESS',
+                data: user
+
+            });
+            
+        } catch (error) {
+            reject(error);
+        }
+    }
+)
+}
 
 
+const refreshTokenService = (token) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            // const user = await User.findById({
+            //     _id: id
+            // });
+            // if(!user){
+            //     resolve({
+            //         status: 'error',
+            //         message: 'User not found'
+            //     });
+            // }
+            console.log('token', token);
+            resolve({
+                status: 'success',
+                message: 'SUCCESS',
+                data: user
+
+            });
+            
+        } catch (error) {
+            reject(error);
+        }
+    }
+)
+}
 
 
-module.exports = { createrUser, loginUser, updateUser };
+module.exports = { createrUser, loginUser, updateUser, deleteUser, getAllUser, getDetailsUser, refreshTokenService };
