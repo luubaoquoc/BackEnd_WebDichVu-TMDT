@@ -4,10 +4,10 @@ const { generateAccessToken, generateRefreshToken } = require('./jwtService');
 
 const createrUser = (newUser) => {
     return new Promise(async (resolve, reject) => {
-        const {user_name, user_email,user_phone, user_password } = newUser;
+        const { user_name, user_email, user_phone, user_password } = newUser;
         try {
-            const checkUser = await User.findOne({user_email});
-            if(checkUser){
+            const checkUser = await User.findOne({ user_email });
+            if (checkUser) {
                 resolve({
                     status: 'error',
                     message: 'User already exist'
@@ -20,7 +20,7 @@ const createrUser = (newUser) => {
                 user_phone,
                 user_password: hash
             });
-            if(createUser){
+            if (createUser) {
                 resolve({
                     status: 'success',
                     message: 'User created successfully',
@@ -31,21 +31,22 @@ const createrUser = (newUser) => {
             reject(error);
         }
     }
-)}
+    )
+}
 
 const loginUser = (userLogin) => {
     return new Promise(async (resolve, reject) => {
-        const {user_email, user_password } = userLogin;
+        const { user_email, user_password } = userLogin;
         try {
-            const checkUser = await User.findOne({user_email});
-            if(!checkUser){
+            const checkUser = await User.findOne({ user_email });
+            if (!checkUser) {
                 reject({
                     status: 'error',
                     message: 'User not found'
                 });
             }
             const comparePassword = bcrypt.compareSync(user_password, checkUser.user_password);
-            if(!comparePassword){
+            if (!comparePassword) {
                 reject({
                     status: 'error',
                     message: 'Password is incorrect'
@@ -60,17 +61,18 @@ const loginUser = (userLogin) => {
                 isAdmin: checkUser.isAdmin
             });
             resolve({
-                    status: 'success',
-                    message: 'Login successfully',
-                    access_token,
-                    refresh_token,
-                    data: checkUser
-                });
+                status: 'success',
+                message: 'Login successfully',
+                access_token,
+                refresh_token,
+                data: checkUser
+            });
         } catch (error) {
             reject(error);
         }
     }
-)}
+    )
+}
 
 const updateUser = (id, data) => {
     return new Promise(async (resolve, reject) => {
@@ -79,7 +81,7 @@ const updateUser = (id, data) => {
                 _id: id
             });
             console.log(checkUser);
-            if(!checkUser){
+            if (!checkUser) {
                 resolve({
                     status: 'error',
                     message: 'User not found'
@@ -88,8 +90,8 @@ const updateUser = (id, data) => {
             if (data.user_password) {
                 data.user_password = bcrypt.hashSync(data.user_password, 10);
             }
-            const updateUser = await User.findByIdAndUpdate(id, data, {new: true});
-            if(updateUser){
+            const updateUser = await User.findByIdAndUpdate(id, data, { new: true });
+            if (updateUser) {
                 resolve({
                     status: 'success',
                     message: 'User updated successfully',
@@ -100,7 +102,7 @@ const updateUser = (id, data) => {
             reject(error);
         }
     }
-)
+    )
 }
 
 const deleteUser = (id) => {
@@ -109,7 +111,7 @@ const deleteUser = (id) => {
             const checkUser = await User.findById({
                 _id: id
             });
-            if(!checkUser){
+            if (!checkUser) {
                 resolve({
                     status: 'error',
                     message: 'User not found'
@@ -120,31 +122,29 @@ const deleteUser = (id) => {
                 status: 'success',
                 message: 'User delete successfully',
             });
-            
+
         } catch (error) {
             reject(error);
         }
     }
-)
+    )
 }
 
 const getAllUser = () => {
     return new Promise(async (resolve, reject) => {
         try {
-            
+
             const allUser = await User.find();
-            if(deleteUser){
-                resolve({
-                    status: 'success',
-                    message: ' successfully',
-                    data: allUser
-                });
-            }
+            resolve({
+                status: 'success',
+                message: ' successfully',
+                data: allUser
+            });
         } catch (error) {
             reject(error);
         }
     }
-)
+    )
 }
 
 const getDetailsUser = (id) => {
@@ -153,7 +153,7 @@ const getDetailsUser = (id) => {
             const user = await User.findById({
                 _id: id
             });
-            if(!user){
+            if (!user) {
                 resolve({
                     status: 'error',
                     message: 'User not found'
@@ -165,41 +165,16 @@ const getDetailsUser = (id) => {
                 data: user
 
             });
-            
+
         } catch (error) {
             reject(error);
         }
     }
-)
+    )
 }
 
 
-const refreshTokenService = (token) => {
-    return new Promise(async (resolve, reject) => {
-        try {
-            // const user = await User.findById({
-            //     _id: id
-            // });
-            // if(!user){
-            //     resolve({
-            //         status: 'error',
-            //         message: 'User not found'
-            //     });
-            // }
-            console.log('token', token);
-            resolve({
-                status: 'success',
-                message: 'SUCCESS',
-                data: user
-
-            });
-            
-        } catch (error) {
-            reject(error);
-        }
-    }
-)
-}
 
 
-module.exports = { createrUser, loginUser, updateUser, deleteUser, getAllUser, getDetailsUser, refreshTokenService };
+
+module.exports = { createrUser, loginUser, updateUser, deleteUser, getAllUser, getDetailsUser };

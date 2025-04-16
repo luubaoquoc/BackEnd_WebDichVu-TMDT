@@ -1,21 +1,22 @@
 const UserServices = require('../services/UserService');
+const jwtService = require('../services/jwtService');
 
 const createrUser = async (req, res) => {
     try {
-        const {user_name, user_email, user_password, user_phone, confirm_password} = req.body;
+        const { user_name, user_email, user_password, user_phone, confirm_password } = req.body;
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         const isCheckEmail = emailRegex.test(user_email);
-        if (!user_name || !user_email || !user_password || !user_phone || !confirm_password ) {
+        if (!user_name || !user_email || !user_password || !user_phone || !confirm_password) {
             return res.status(400).json({
                 status: 'error',
                 message: 'All fields are required',
             });
-        }else if (!isCheckEmail) {
+        } else if (!isCheckEmail) {
             return res.status(400).json({
                 status: 'error',
                 message: 'Invalid email format',
             });
-        }else if (user_password !== confirm_password) {
+        } else if (user_password !== confirm_password) {
             return res.status(400).json({
                 status: 'error',
                 message: 'Password does not match',
@@ -33,7 +34,7 @@ const createrUser = async (req, res) => {
 
 const loginUser = async (req, res) => {
     try {
-        const {user_email, user_password} = req.body;
+        const { user_email, user_password } = req.body;
         if (!user_email || !user_password) {
             return res.status(400).json({
                 status: 'error',
@@ -73,7 +74,7 @@ const updateUser = async (req, res) => {
 const deleteUser = async (req, res) => {
     try {
         const userId = req.params.id;
-        
+
         if (!userId) {
             return res.status(400).json({
                 status: 'error',
@@ -92,7 +93,7 @@ const deleteUser = async (req, res) => {
 
 const getAllUser = async (req, res) => {
     try {
-        
+
         const response = await UserServices.getAllUser();
         return res.status(200).json({
             status: 'success',
@@ -106,7 +107,7 @@ const getAllUser = async (req, res) => {
 const getDetailsUser = async (req, res) => {
     try {
         const userId = req.params.id;
-        
+
         if (!userId) {
             return res.status(400).json({
                 status: 'error',
@@ -126,15 +127,15 @@ const getDetailsUser = async (req, res) => {
 const refreshToken = async (req, res) => {
     try {
         const token = req.headers.token.split(' ')[1];
-        
-        
+
+
         if (!token) {
             return res.status(400).json({
                 status: 'error',
                 message: 'the token is required',
             });
         }
-        const response = await UserServices.refreshTokenService(token);
+        const response = await jwtService.refreshTokenService(token);
         return res.status(200).json({
             status: 'success',
             data: response,
@@ -145,4 +146,4 @@ const refreshToken = async (req, res) => {
 }
 
 
-module.exports = { createrUser, loginUser, updateUser, deleteUser, getAllUser, getDetailsUser, refreshToken};
+module.exports = { createrUser, loginUser, updateUser, deleteUser, getAllUser, getDetailsUser, refreshToken };
