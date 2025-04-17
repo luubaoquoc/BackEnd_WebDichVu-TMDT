@@ -93,16 +93,19 @@ const deleteUser = async (req, res) => {
 
 const getAllUser = async (req, res) => {
     try {
+        const currentUser = req.user; // đã được gán trong middleware
+
+        if (!currentUser || !currentUser.isAdmin) {
+            return res.status(403).json({ status: "error", message: "Không có quyền truy cập" });
+        }
 
         const response = await UserServices.getAllUser();
-        return res.status(200).json({
-            status: 'success',
-            data: response,
-        });
+        return res.status(200).json({ status: "success", data: response });
     } catch (error) {
         return res.status(500).send(error.message);
     }
-}
+};
+
 
 const getDetailsUser = async (req, res) => {
     try {

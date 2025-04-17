@@ -135,11 +135,7 @@ const getAllUser = () => {
         try {
 
             const allUser = await User.find();
-            resolve({
-                status: 'success',
-                message: ' successfully',
-                data: allUser
-            });
+            resolve(allUser);
         } catch (error) {
             reject(error);
         }
