@@ -1,42 +1,45 @@
 const OrderService = require("../models/OrderService");
+const mongoose = require('mongoose');
+
 
 // Đặt lịch mới
 exports.createOrderService = async (req, res) => {
-    try {
-        console.log("Dữ liệu nhận được:", req.body);
-    
-        const { name, phone, service, timeSlot, date, address, note } = req.body;
-    
-        if (!name || !phone || !service || !timeSlot || !date || !address) {
-            return res.status(400).json({ message: "Vui lòng điền đầy đủ thông tin!" });
-        }
-    
-        const formattedDate = new Date(date);
-        if (isNaN(formattedDate.getTime())) {
-            return res.status(400).json({ message: "Ngày không hợp lệ!" });
-        }
-    
-        console.log("Formatted date:", formattedDate);
-    
-        const newOrder = new OrderService({
-            name,
-            phone,
-            service,
-            timeSlot,
-            date: formattedDate,
-            address,
-            note,
-        });
-    
-        await newOrder.save();
-        res.status(201).json({ message: "Đặt lịch thành công!", order: newOrder });
-    
-    } catch (error) {
-        console.error("Lỗi khi đặt lịch:", error.message);
-        res.status(500).json({ message: "Lỗi server khi đặt lịch", error: error.message });
+  try {
+    console.log("Dữ liệu nhận được:", req.body);
+
+    const { name, phone, service, timeSlot, date, address, note } = req.body;
+
+    if (!name || !phone || !service || !timeSlot || !date || !address) {
+      return res.status(400).json({ message: "Vui lòng điền đầy đủ thông tin!" });
     }
-  };
-  
+
+    const formattedDate = new Date(date);
+    if (isNaN(formattedDate.getTime())) {
+      return res.status(400).json({ message: "Ngày không hợp lệ!" });
+    }
+
+    console.log("Formatted date:", formattedDate);
+
+    const newOrder = new OrderService({
+      userId: new mongoose.Types.ObjectId(req.user?.id),
+      name,
+      phone,
+      service,
+      timeSlot,
+      date: formattedDate,
+      address,
+      note,
+    });
+
+    await newOrder.save();
+    res.status(201).json({ message: "Đặt lịch thành công!", order: newOrder });
+
+  } catch (error) {
+    console.error("Lỗi khi đặt lịch:", error.message);
+    res.status(500).json({ message: "Lỗi server khi đặt lịch", error: error.message });
+  }
+};
+
 
 // Lấy danh sách đặt lịch (tuỳ chọn)
 exports.getOrders = async (req, res) => {
@@ -45,5 +48,41 @@ exports.getOrders = async (req, res) => {
     res.status(200).json(orders);
   } catch (error) {
     res.status(500).json({ message: "Lỗi lấy danh sách đặt lịch", error });
+  }
+};
+
+exports.confirmOrderService = async (req, res) => {
+  try {
+    const orderId = req.params.id;
+    const updatedOrder = await OrderService.findByIdAndUpdate(
+      orderId,
+      { confirmed: true },
+      { new: true }
+    );
+    res.status(200).json({ status: "success", data: updatedOrder });
+  } catch (error) {
+    res.status(500).json({ status: "error", message: "Lỗi xác nhận đơn", error });
+  }
+};
+
+exports.getMyOrders = async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    console.log("User ID từ token:", userId);
+
+    if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({
+        status: "error",
+        message: "User ID không hợp lệ",
+      });
+    }
+
+    const orders = await OrderService.find({ userId }); // Không cần ép kiểu
+    console.log("Kết quả đơn hàng:", orders);
+
+    res.status(200).json({ status: "success", data: orders });
+  } catch (error) {
+    console.error("Lỗi tại getMyOrders:", error);
+    res.status(500).json({ status: "error", message: "Lỗi server", error: error.message });
   }
 };
