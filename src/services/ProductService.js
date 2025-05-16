@@ -4,11 +4,11 @@ const bcrypt = require('bcrypt');
 
 const createProduct = (newProduct) => {
     return new Promise(async (resolve, reject) => {
-        const { product_name, product_price, product_image, product_brand, product_category, product_countInStock, product_description } = newProduct;
+        const { product_name, product_price, product_image, product_brand, product_discount, product_category, product_countInStock, product_description } = newProduct;
         try {
             const checkProduct = await Product.findOne({ product_name });
             if (checkProduct) {
-                resolve({
+                return resolve({
                     status: 'error',
                     message: 'The name of product is already exist'
                 });
@@ -18,6 +18,7 @@ const createProduct = (newProduct) => {
                 product_price,
                 product_image,
                 product_brand,
+                product_discount,
                 product_category,
                 product_countInStock,
                 product_description

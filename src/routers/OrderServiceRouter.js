@@ -4,7 +4,7 @@ const { authMiddleware, authUserMiddleware } = require("../middleware/authMiddle
 
 const router = express.Router();
 
-router.post("/orderservice", createOrderService); // API đặt lịch
+router.post("/orderservice", authUserMiddleware, createOrderService); // API đặt lịch
 router.get("/get-orders-service", getOrders); // API lấy danh sách đặt lịch
 router.get("/orderservice/my-orders", authUserMiddleware, getMyOrders);
 router.patch("/orderservice/confirm/:id", authMiddleware, confirmOrderService);

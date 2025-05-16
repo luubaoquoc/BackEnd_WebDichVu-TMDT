@@ -43,7 +43,7 @@ const updateProduct = async (req, res) => {
 const getAllProduct = async (req, res) => {
     try {
         const { limit, page } = req.query
-        const response = await ProductServices.getAllProduct(Number(limit) || 8, Number(page) || 0);
+        const response = await ProductServices.getAllProduct(Number(limit) || 16, Number(page) || 0);
         return res.status(200).json({
             status: 'success',
             data: response,
