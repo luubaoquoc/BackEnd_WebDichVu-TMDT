@@ -12,6 +12,7 @@ const userSchema = new mongoose.Schema(
             type: String, // lưu URL hoặc path ảnh
             default: "",  // có thể set mặc định rỗng hoặc ảnh mặc định
         },
+        isBlocked: { type: Boolean, default: false },
         // user_status: {type: String, required: true},
         // user_access_token: {type: String, required: true},
         // user_refresh_token: {type: String, required: true},

@@ -127,6 +127,26 @@ const getDetailsUser = async (req, res) => {
     }
 }
 
+const blockUser = async (req, res) => {
+    try {
+        const userId = req.params.id;
+
+        if (!userId) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'User id is required',
+            });
+        }
+        const response = await UserServices.blockUser(userId);
+        return res.status(200).json({
+            status: 'success',
+            data: response,
+        });
+    } catch (error) {
+        return res.status(500).send(error.message);
+    }
+}
+
 const refreshToken = async (req, res) => {
     try {
         const token = req.headers.token.split(' ')[1];
@@ -149,4 +169,4 @@ const refreshToken = async (req, res) => {
 }
 
 
-module.exports = { createrUser, loginUser, updateUser, deleteUser, getAllUser, getDetailsUser, refreshToken };
+module.exports = { createrUser, loginUser, updateUser, deleteUser, getAllUser, getDetailsUser, refreshToken, blockUser };

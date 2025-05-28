@@ -9,6 +9,8 @@ router.put("/update-user/:id", userControllers.updateUser);
 router.delete("/delete-user/:id", authMiddleware, userControllers.deleteUser);
 router.get("/getAllUser", authMiddleware, userControllers.getAllUser);
 router.get("/get-details/:id", userControllers.getDetailsUser);
+router.patch("/block/:id", authMiddleware, userControllers.blockUser);
 router.post("/refresh-token", userControllers.refreshToken);
+
 
 module.exports = router;

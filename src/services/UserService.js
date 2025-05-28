@@ -39,11 +39,20 @@ const loginUser = (userLogin) => {
         const { user_email, user_password } = userLogin;
         try {
             const checkUser = await User.findOne({ user_email });
+            console.log(checkUser);
             if (!checkUser) {
                 reject({
                     status: 'error',
                     message: 'User not found'
                 });
+                return;
+            }
+            if (checkUser.isBlocked) {
+                reject({
+                    status: 'error',
+                    message: 'User is blocked'
+                });
+                return;
             }
             const comparePassword = bcrypt.compareSync(user_password, checkUser.user_password);
             if (!comparePassword) {
@@ -51,6 +60,7 @@ const loginUser = (userLogin) => {
                     status: 'error',
                     message: 'Password is incorrect'
                 });
+                return;
             }
             const access_token = await generateAccessToken({
                 id: checkUser._id,
@@ -80,7 +90,6 @@ const updateUser = (id, data) => {
             const checkUser = await User.findById({
                 _id: id
             });
-            console.log(checkUser);
             if (!checkUser) {
                 resolve({
                     status: 'error',
@@ -169,8 +178,29 @@ const getDetailsUser = (id) => {
     )
 }
 
+const blockUser = (id) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const user = await User.findById({
+                _id: id
+            });
+            if (!user) {
+                resolve({
+                    status: 'error',
+                    message: 'User not found'
+                });
+            }
+            const updateUser = await User.findByIdAndUpdate(id, { isBlocked: true }, { new: true });
+            resolve({
+                status: 'success',
+                message: 'User blocked successfully',
+                data: updateUser
+            });
+        } catch (error) {
+            reject(error);
+        }
+    }
+    )
+}
 
-
-
-
-module.exports = { createrUser, loginUser, updateUser, deleteUser, getAllUser, getDetailsUser };
+module.exports = { createrUser, loginUser, updateUser, deleteUser, getAllUser, getDetailsUser, blockUser };

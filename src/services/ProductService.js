@@ -43,7 +43,6 @@ const updateproduct = (id, data) => {
             const checkProduct = await Product.findById({
                 _id: id
             });
-            console.log(checkProduct);
             if (!checkProduct) {
                 resolve({
                     status: 'error',
