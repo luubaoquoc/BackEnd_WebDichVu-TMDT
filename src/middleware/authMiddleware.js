@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const User = require('../models/UserModel'); // Import model User
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -43,10 +44,9 @@ const authMiddleware = (req, res, next) => {
         }
     });
 }
-const authUserMiddleware = (req, res, next) => {
+const authUserMiddleware = async (req, res, next) => {
     try {
-        const token = req.headers.authorization?.split(' ')[1]; // dùng "authorization" thay vì "token"
-        console.log(token)
+        const token = req.headers.authorization?.split(' ')[1];
         if (!token) {
             return res.status(401).json({
                 status: 'error',
@@ -54,26 +54,30 @@ const authUserMiddleware = (req, res, next) => {
             });
         }
 
-        jwt.verify(token, process.env.ACCESS_TOKEN, (err, user) => {
-            if (err) {
-                return res.status(403).json({
-                    status: 'error',
-                    message: 'Token không hợp lệ hoặc đã hết hạn',
-                });
-            }
+        let user;
+        try {
+            user = jwt.verify(token, process.env.ACCESS_TOKEN);
+        } catch (err) {
+            return res.status(403).json({
+                status: 'error',
+                message: 'Token không hợp lệ hoặc đã hết hạn',
+            });
+        }
 
-            // ⚠️ THÊM DÒNG NÀY để controller có thể lấy req.user
-            req.user = user;
-            console.log(user)
+        const dbUser = await User.findById(user.id);
+        if (!dbUser || dbUser.isBlocked) {
+            return res.status(403).json({
+                status: 'error',
+                message: 'Tài khoản đã bị khóa hoặc không tồn tại',
+            });
+        }
 
-
-            next();
-        });
+        req.user = dbUser;
+        next();
     } catch (error) {
         return res.status(500).json({ status: "error", message: "Lỗi server", error });
     }
 };
-
 
 module.exports = {
     authMiddleware,

@@ -47,7 +47,13 @@ const loginUser = async (req, res) => {
             data: response,
         });
     } catch (error) {
-        return res.status(500).send(error.message);
+        if (error.status && error.message) {
+            return res.status(400).json(error); // ✅ Trả về object chuẩn JSON
+        }
+        return res.status(500).json({
+            status: 'error',
+            message: error.message || 'Internal Server Error'
+        });
     }
 }
 
