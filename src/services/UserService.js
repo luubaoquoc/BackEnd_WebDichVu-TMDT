@@ -4,11 +4,11 @@ const { generateAccessToken, generateRefreshToken } = require('./jwtService');
 
 const createrUser = (newUser) => {
     return new Promise(async (resolve, reject) => {
-        const { user_name, user_email, user_phone, user_password } = newUser;
+        const { user_name, user_email, user_password } = newUser;
         try {
             const checkUser = await User.findOne({ user_email });
             if (checkUser) {
-                resolve({
+                reject({
                     status: 'error',
                     message: 'User already exist'
                 });
@@ -17,7 +17,6 @@ const createrUser = (newUser) => {
             const createUser = await User.create({
                 user_name,
                 user_email,
-                user_phone,
                 user_password: hash
             });
             if (createUser) {
@@ -91,7 +90,7 @@ const updateUser = (id, data) => {
                 _id: id
             });
             if (!checkUser) {
-                resolve({
+                reject({
                     status: 'error',
                     message: 'User not found'
                 });
@@ -121,7 +120,7 @@ const deleteUser = (id) => {
                 _id: id
             });
             if (!checkUser) {
-                resolve({
+                reject({
                     status: 'error',
                     message: 'User not found'
                 });
@@ -159,7 +158,7 @@ const getDetailsUser = (id) => {
                 _id: id
             });
             if (!user) {
-                resolve({
+                reject({
                     status: 'error',
                     message: 'User not found'
                 });
@@ -185,7 +184,7 @@ const blockUser = (id) => {
                 _id: id
             });
             if (!user) {
-                resolve({
+                reject({
                     status: 'error',
                     message: 'User not found'
                 });
@@ -203,4 +202,26 @@ const blockUser = (id) => {
     )
 }
 
-module.exports = { createrUser, loginUser, updateUser, deleteUser, getAllUser, getDetailsUser, blockUser };
+const unblockUser = async (userId) => {
+    const user = await User.findByIdAndUpdate(
+        userId,
+        { isBlocked: false },
+        { new: true }
+    );
+    return user;
+};
+
+const changePassword = async (userId, oldPassword, newPassword) => {
+    const user = await User.findById(userId);
+    if (!user) return false;
+
+    const isMatch = await bcrypt.compare(oldPassword, user.user_password);
+    if (!isMatch) return false;
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.user_password = hashedPassword;
+    await user.save();
+    return true;
+};
+
+module.exports = { createrUser, loginUser, updateUser, deleteUser, getAllUser, getDetailsUser, blockUser, unblockUser, changePassword };

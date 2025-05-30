@@ -5,7 +5,6 @@ const mongoose = require('mongoose');
 // Đặt lịch mới
 exports.createOrderService = async (req, res) => {
   try {
-    console.log("Dữ liệu nhận được:", req.body);
 
     const { name, phone, service, timeSlot, date, address, note } = req.body;
 
@@ -68,8 +67,6 @@ exports.confirmOrderService = async (req, res) => {
 exports.getMyOrders = async (req, res) => {
   try {
     const userId = req.user?.id;
-    console.log("User ID từ token:", userId);
-
     if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
       return res.status(400).json({
         status: "error",
@@ -77,8 +74,7 @@ exports.getMyOrders = async (req, res) => {
       });
     }
 
-    const orders = await OrderService.find({ userId }); // Không cần ép kiểu
-    console.log("Kết quả đơn hàng:", orders);
+    const orders = await OrderService.find({ userId });
 
     res.status(200).json({ status: "success", data: orders });
   } catch (error) {

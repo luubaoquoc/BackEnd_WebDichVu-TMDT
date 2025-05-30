@@ -8,9 +8,13 @@ router.post("/login", userControllers.loginUser);
 router.put("/update-user/:id", userControllers.updateUser);
 router.delete("/delete-user/:id", authMiddleware, userControllers.deleteUser);
 router.get("/getAllUser", authMiddleware, userControllers.getAllUser);
-router.get("/get-details/:id", userControllers.getDetailsUser);
+router.get("/get-details/:id", authUserMiddleware, userControllers.getDetailsUser);
 router.patch("/block/:id", authMiddleware, userControllers.blockUser);
+router.patch("/unblock/:id", authMiddleware, userControllers.unblockUser);
 router.post("/refresh-token", authUserMiddleware, userControllers.refreshToken);
+router.post("/change-password", authUserMiddleware, userControllers.changePassword);
+
+
 
 
 module.exports = router;

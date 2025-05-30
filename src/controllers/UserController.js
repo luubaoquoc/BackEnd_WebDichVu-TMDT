@@ -3,10 +3,10 @@ const jwtService = require('../services/jwtService');
 
 const createrUser = async (req, res) => {
     try {
-        const { user_name, user_email, user_password, user_phone, confirm_password } = req.body;
+        const { user_name, user_email, user_password, confirm_password } = req.body;
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         const isCheckEmail = emailRegex.test(user_email);
-        if (!user_name || !user_email || !user_password || !user_phone || !confirm_password) {
+        if (!user_name || !user_email || !user_password || !confirm_password) {
             return res.status(400).json({
                 status: 'error',
                 message: 'All fields are required',
@@ -153,6 +153,26 @@ const blockUser = async (req, res) => {
     }
 }
 
+const unblockUser = async (req, res) => {
+    try {
+        const userId = req.params.id;
+
+        if (!userId) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'User id is required',
+            });
+        }
+        const response = await UserServices.unblockUser(userId);
+        return res.status(200).json({
+            status: 'success',
+            data: response,
+        });
+    } catch (error) {
+        return res.status(500).send(error.message);
+    }
+}
+
 const refreshToken = async (req, res) => {
     try {
         const token = req.headers.token.split(' ')[1];
@@ -174,5 +194,41 @@ const refreshToken = async (req, res) => {
     }
 }
 
+const changePassword = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const { oldPassword, newPassword, confirmPassword } = req.body;
 
-module.exports = { createrUser, loginUser, updateUser, deleteUser, getAllUser, getDetailsUser, refreshToken, blockUser };
+        if (!oldPassword || !newPassword || !confirmPassword) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'Vui lòng nhập đầy đủ thông tin',
+            });
+        }
+        if (newPassword !== confirmPassword) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'Mật khẩu xác nhận không khớp',
+            });
+        }
+
+        const result = await UserServices.changePassword(userId, oldPassword, newPassword);
+        if (!result) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'Mật khẩu cũ không đúng',
+            });
+        }
+
+        return res.status(200).json({
+            status: 'success',
+            message: 'Đổi mật khẩu thành công',
+        });
+    } catch (error) {
+        return res.status(500).json({ status: "error", message: error.message });
+    }
+};
+
+
+
+module.exports = { createrUser, loginUser, updateUser, deleteUser, getAllUser, getDetailsUser, refreshToken, blockUser, unblockUser, changePassword };

@@ -71,7 +71,6 @@ const authUserMiddleware = async (req, res, next) => {
                 message: 'Tài khoản đã bị khóa hoặc không tồn tại',
             });
         }
-
         req.user = dbUser;
         next();
     } catch (error) {
