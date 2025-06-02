@@ -16,7 +16,8 @@ app.use(cors());
 app.use(express.json());  // ❗ QUAN TRỌNG: Middleware để đọc JSON từ request body
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use('/public', express.static(path.join(__dirname, 'public')))
+app.use("/assets/images", express.static(path.join(__dirname, "/public/assets/images"))); // Đường dẫn tĩnh cho hình ảnh
+
 const db = require("./config/database");
 db.connect();
 
@@ -24,7 +25,7 @@ routes(app);
 
 app.get("/", (req, res) => {
     res.send("Hello World!");
-    });
+});
 app.listen(port, () => {
     console.log(`Server is running at http://localhost:${port}`);
-    });
+});

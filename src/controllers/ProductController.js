@@ -2,15 +2,31 @@ const ProductServices = require('../services/ProductService');
 
 const createProduct = async (req, res) => {
     try {
-        const { product_name, product_price, product_image, product_brand, product_category, product_countInStock, product_description } = req.body;
-        console.log('data', req.body)
-        if (!product_name || !product_price || !product_image || !product_brand || !product_category || !product_countInStock) {
+        const {
+            product_name,
+            product_price,
+            product_brand,
+            product_category,
+            product_countInStock,
+            product_description } = req.body;
+        const product_image = req.file ? `/assets/images/${req.file.filename}` : null;
+
+
+        if (!product_name || !product_price || !product_image || !product_brand || !product_category || !product_countInStock || !product_description) {
             return res.status(400).json({
                 status: 'error',
                 message: 'All fields are required',
             });
         }
-        const response = await ProductServices.createProduct(req.body);
+        const response = await ProductServices.createProduct({
+            product_name,
+            product_price,
+            product_image,
+            product_brand,
+            product_category,
+            product_countInStock,
+            product_description
+        });
         return res.status(201).json({
             status: 'success',
             data: response,
@@ -29,6 +45,10 @@ const updateProduct = async (req, res) => {
                 status: 'error',
                 message: 'Product id is required',
             });
+        }
+
+        if (req.file) {
+            data.product_image = `/assets/images/${req.file.filename}`;
         }
         const response = await ProductServices.updateproduct(productId, data);
         return res.status(200).json({
