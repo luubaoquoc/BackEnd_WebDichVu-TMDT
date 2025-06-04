@@ -5,7 +5,6 @@ const mongoose = require('mongoose');
 // Đặt lịch mới
 exports.createOrderService = async (req, res) => {
   try {
-
     const { name, phone, service, timeSlot, date, address, note } = req.body;
 
     if (!name || !phone || !service || !timeSlot || !date || !address) {
@@ -17,7 +16,21 @@ exports.createOrderService = async (req, res) => {
       return res.status(400).json({ message: "Ngày không hợp lệ!" });
     }
 
-    console.log("Formatted date:", formattedDate);
+    // Kiểm tra trùng khung giờ, ngày, dịch vụ
+    const start = new Date(formattedDate);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(formattedDate);
+    end.setHours(23, 59, 59, 999);
+
+    const existedOrder = await OrderService.findOne({
+      service,
+      timeSlot,
+      date: { $gte: start, $lte: end }
+    });
+
+    if (existedOrder) {
+      return res.status(409).json({ message: "Khung giờ này đã được đặt cho dịch vụ này trong ngày này!" });
+    }
 
     const newOrder = new OrderService({
       userId: new mongoose.Types.ObjectId(req.user?.id),
@@ -80,5 +93,29 @@ exports.getMyOrders = async (req, res) => {
   } catch (error) {
     console.error("Lỗi tại getMyOrders:", error);
     res.status(500).json({ status: "error", message: "Lỗi server", error: error.message });
+  }
+};
+
+exports.getBookedTimeSlots = async (req, res) => {
+  try {
+    const { date, service } = req.query;
+    if (!date || !service) {
+      return res.status(400).json({ message: "Missing date or service parameter" });
+    }
+    // Chuyển date về đầu ngày và cuối ngày để so sánh
+    const start = new Date(date);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(date);
+    end.setHours(23, 59, 59, 999);
+
+    const orders = await OrderService.find({
+      date: { $gte: start, $lte: end },
+      service: service
+    }).select("timeSlot -_id");
+
+    const bookedTimeSlots = orders.map(order => order.timeSlot);
+    res.json({ bookedTimeSlots });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };
