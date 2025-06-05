@@ -6,6 +6,7 @@ const createProduct = async (req, res) => {
             product_name,
             product_price,
             product_brand,
+            product_discount,
             product_category,
             product_countInStock,
             product_description } = req.body;
@@ -23,6 +24,7 @@ const createProduct = async (req, res) => {
             product_price,
             product_image,
             product_brand,
+            product_discount,
             product_category,
             product_countInStock,
             product_description
