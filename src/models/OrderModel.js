@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const orderSchema = new mongoose.Schema(
     {
@@ -8,9 +8,9 @@ const orderSchema = new mongoose.Schema(
                 qty: { type: Number, required: true },
                 image: { type: String, required: true },
                 price: { type: Number, required: true },
-                product: {
+                product_id: {
                     type: mongoose.Schema.Types.ObjectId,
-                    ref: 'Product',
+                    ref: "Product",
                     required: true,
                 },
             },
@@ -20,15 +20,16 @@ const orderSchema = new mongoose.Schema(
             address: { type: String, required: true },
             city: { type: String, required: true },
             phoneNumber: { type: String, required: true },
+            note: { type: String, required: false },
         },
-        paymentMethod: { type: String, required: true },
+        paymentMethod: { type: String, required: false },
         itemsPrice: { type: Number, required: true },
         shippingPrice: { type: Number, required: true },
-        taxPrice: { type: Number, required: true },
+        taxPrice: { type: Number, required: false },
         totalPrice: { type: Number, required: true },
         user: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'User',
+            ref: "User",
             required: true,
         },
         isPaid: { type: Boolean, default: false },
@@ -41,5 +42,5 @@ const orderSchema = new mongoose.Schema(
     }
 );
 
-const Order = mongoose.model('Order', orderSchema);
+const Order = mongoose.model("Order", orderSchema);
 module.exports = Order;
