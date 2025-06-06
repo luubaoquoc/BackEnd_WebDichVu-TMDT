@@ -1,5 +1,5 @@
 const express = require("express");
-const { createOrderService, getOrders, confirmOrderService, getMyOrders, getBookedTimeSlots } = require("../controllers/OrderServiceController");
+const { createOrderService, getOrders, confirmOrderService, getMyOrders, getBookedTimeSlots, cancelOrderService } = require("../controllers/OrderServiceController");
 const { authMiddleware, authUserMiddleware } = require("../middleware/authMiddleware");
 
 const router = express.Router();
@@ -9,5 +9,6 @@ router.get("/get-orders-service", getOrders); // API lấy danh sách đặt l�
 router.get("/orderservice/my-orders", authUserMiddleware, getMyOrders);
 router.patch("/orderservice/confirm/:id", authMiddleware, confirmOrderService);
 router.get("/orderservice/booked-timesslots", authUserMiddleware, getBookedTimeSlots);
+router.delete("/orderservice/cancel/:id", authUserMiddleware, cancelOrderService);
 
 module.exports = router;

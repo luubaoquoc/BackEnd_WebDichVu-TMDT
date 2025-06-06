@@ -119,3 +119,26 @@ exports.getBookedTimeSlots = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+
+exports.cancelOrderService = async (req, res) => {
+  try {
+    const order = await OrderService.findOne({
+      _id: new mongoose.Types.ObjectId(req.params.id),
+      userId: new mongoose.Types.ObjectId(req.user._id), // Đúng trường userId
+      confirmed: false
+    });
+    console.log("Order found:", order);
+    console.log("User ID:", req.user._id);
+    console.log("Order ID:", req.params.id);
+    console.log("Order confirmed:", order?.confirmed);
+    if (!order) {
+      return res.status(404).json({ status: "fail", message: "Không tìm thấy đơn hoặc đã xác nhận!" });
+    }
+    await order.deleteOne();
+    res.json({ status: "success", message: "Đã hủy đơn thành công!" });
+  } catch (error) {
+    console.error("Cancel order error:", error);
+    res.status(500).json({ status: "fail", message: "Lỗi server!" });
+  }
+};
