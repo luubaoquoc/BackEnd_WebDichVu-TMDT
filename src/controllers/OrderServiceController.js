@@ -57,6 +57,7 @@ exports.createOrderService = async (req, res) => {
 exports.getOrders = async (req, res) => {
   try {
     const orders = await OrderService.find();
+    orders.sort((a, b) => b.date - a.date);
     res.status(200).json(orders);
   } catch (error) {
     res.status(500).json({ message: "Lỗi lấy danh sách đặt lịch", error });

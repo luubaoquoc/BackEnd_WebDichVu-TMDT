@@ -1,6 +1,58 @@
 const User = require('../models/UserModel');
 const bcrypt = require('bcrypt');
 const { generateAccessToken, generateRefreshToken } = require('./jwtService');
+const { sendVerificationEmail } = require('../utils/sendMail');
+const crypto = require("crypto");
+
+
+
+const registerUser = (newUser) => {
+    return new Promise(async (resolve, reject) => {
+        const { user_name, user_email, user_password } = newUser;
+        try {
+            const checkUser = await User.findOne({ user_email });
+            if (checkUser) {
+                return reject({
+                    status: 'error',
+                    message: 'User already exist'
+                });
+            }
+            const hash = bcrypt.hashSync(user_password, 10);
+            const verificationToken = crypto.randomBytes(32).toString("hex");
+            const createUser = await User.create({
+                user_name,
+                user_email,
+                user_password: hash,
+                isVerified: false,
+                verificationToken
+            });
+            await sendVerificationEmail({
+                to: user_email,
+                subject: 'Xác thực email của bạn',
+                html: `
+          <h3>Xin chào ${user_name}</h3>
+          <p>Vui lòng click link bên dưới để xác thực email:</p>
+          <a href="http://localhost:3000/verify-email?token=${verificationToken}">
+            Xác thực email
+          </a>
+        `,
+            });
+            if (createUser) {
+                resolve({
+                    status: 'success',
+                    message: 'User registered successfully, please verify your email',
+                    data: createUser
+                });
+            }
+
+
+        } catch (error) {
+            reject(error);
+        }
+    }
+    )
+}
+
 
 const createrUser = (newUser) => {
     return new Promise(async (resolve, reject) => {
@@ -224,4 +276,4 @@ const changePassword = async (userId, oldPassword, newPassword) => {
     return true;
 };
 
-module.exports = { createrUser, loginUser, updateUser, deleteUser, getAllUser, getDetailsUser, blockUser, unblockUser, changePassword };
+module.exports = { registerUser, createrUser, loginUser, updateUser, deleteUser, getAllUser, getDetailsUser, blockUser, unblockUser, changePassword };

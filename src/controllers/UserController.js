@@ -1,5 +1,74 @@
+const User = require('../models/UserModel');
 const UserServices = require('../services/UserService');
 const jwtService = require('../services/jwtService');
+
+
+
+const registerUser = async (req, res) => {
+    try {
+        const { user_name, user_email, user_password, confirm_password } = req.body;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const isCheckEmail = emailRegex.test(user_email);
+        if (!user_name || !user_email || !user_password || !confirm_password) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'All fields are required',
+            });
+        }
+        else if (!isCheckEmail) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'Invalid email format',
+            });
+        }
+        else if (user_password !== confirm_password) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'Password does not match',
+            });
+        }
+        const response = await UserServices.registerUser(req.body);
+        return res.status(201).json({
+            status: 'success',
+            data: response,
+        });
+    }
+    catch (error) {
+        return res.status(404).send(error.message);
+    }
+}
+
+const verifyEmail = async (req, res) => {
+    try {
+        const { token } = req.query;
+
+        console.log(token);
+
+        const user = await User.findOne({ verificationToken: token });
+
+        console.log(user);
+        
+
+        if (!user) {
+            return res.status(400).json({
+                status: "error",
+                message: "Token không hợp lệ hoặc đã hết hạn",
+            });
+        }
+
+        user.isVerified = true;
+        user.verificationToken = null;
+        await user.save();
+
+        return res.status(200).json({
+            status: "success",
+            message: "Xác thực email thành công",
+        });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+
 
 const createrUser = async (req, res) => {
     try {
@@ -39,6 +108,16 @@ const loginUser = async (req, res) => {
             return res.status(400).json({
                 status: 'error',
                 message: 'user_email and user_password are required',
+            });
+        }
+
+        const user = await User.findOne({ user_email });
+
+
+        if (!user.isVerified) {
+            return res.status(403).json({
+                status: "error",
+                message: "Vui lòng xác thực email trước khi đăng nhập",
             });
         }
         const response = await UserServices.loginUser(req.body);
@@ -231,4 +310,4 @@ const changePassword = async (req, res) => {
 
 
 
-module.exports = { createrUser, loginUser, updateUser, deleteUser, getAllUser, getDetailsUser, refreshToken, blockUser, unblockUser, changePassword };
+module.exports = { registerUser, verifyEmail, createrUser, loginUser, updateUser, deleteUser, getAllUser, getDetailsUser, refreshToken, blockUser, unblockUser, changePassword };
